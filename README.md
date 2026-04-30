@@ -2,6 +2,12 @@
 
 ---
 
+| Nome | RA |
+|---|---|
+| Gustavo Monteiro Fonseca | 22353243 |
+
+---
+
 ## 1. Descrição do Projeto
 
 ### Contexto de Negócio
