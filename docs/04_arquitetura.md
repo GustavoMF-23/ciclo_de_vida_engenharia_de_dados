@@ -1,160 +1,148 @@
 # 4. Arquitetura — Fluxo de Dados
 
-## 🏗️ Arquitetura do Projeto
+## 🏗️ Arquitetura do Pipeline
 
 ```mermaid
 flowchart LR
 
-subgraph Fontes de Dados
-    A[spotify_musics.csv]
-    B[Faker - Usuários]
-    C[Faker - Interações]
+A[📥 Dados Brutos<br/>Sources: Streams / Batch] --> B[🥉 Camada Bronze<br/>Raw Data<br/>Sem tratamento]
+
+B --> C[🥈 Camada Silver<br/>Dados limpos e tratados<br/>Retirada de duplicatas]
+
+C --> D[🥇 Camada Gold<br/>Dados agregados<br/>KPIs e métricas de negócio]
+
+subgraph Lakehouse Architecture
+A
+B
+C
+D
 end
+```
+### Justificativa da arquitetura
 
-subgraph Geração de Dados
-    D[generate_musics.py]
-    E[generate_users.py]
-    F[generate_streaming.py]
-end
+A escolha do modelo Lakehouse permite combinar a Flexibilidade do Data Lake (dados brutos e variados) e a estrutura analítica de um Data Warehouse. Além disso reduz custo (armazenamento barato), permite múltiplos tipos de processamento e facilita evolução do projeto.
+Já a arquitetura Medalhão (Bronze, Silver, Gold) utiliza camadas, melhorando a qualidade dos dados, governança e reprodutibilidade.
 
-subgraph Ingestão
-    G[ingest_batch.py]
-    H[ingest_stream.py]
-end
+### Camadas
 
-subgraph Lakehouse
-    I[🥉 Bronze Layer<br/>Dados Brutos]
-    J[🥈 Silver Layer<br/>Dados Tratados]
-    K[🥇 Gold Layer<br/>Dados Analíticos]
-end
+* Bronze: dados brutos sem transformação
+* Silver: dados tratados
+      Transformações realizadas:
+        Remoção de duplicidades
+        Tratamento de valores ausentes
+        Conversão de datas
+        Padronização de nomes de colunas
+        Validação de tipos de dados
+* Gold: dados agregados e prontos para consumo
 
-subgraph Transformações
-    L[transform_silver.py]
-    M[transform_gold.py]
-end
+  <img width="885" height="319" alt="image" src="https://github.com/user-attachments/assets/dd957203-5d31-420a-b4cd-5c843bb371bb" />
 
-subgraph Consumo
-    N[gera_csv.py]
-    O[📊 Power BI]
-end
+  
+### Fluxo
 
-A --> D
-B --> E
-C --> F
+1. Origem (eventos + dados batch)
+2. Ingestão (streaming e batch)
+3. Armazenamento (Data Lake)
+4. Processamento
+5. Consumo
 
-D --> G
-E --> G
-F --> H
+### Stack
+<img width="1082" height="300" alt="image" src="https://github.com/user-attachments/assets/d8361d90-cf16-46d7-8f4a-f6f0f29edee9" />
 
-G --> I
-H --> I
 
-I --> L
-L --> J
+### Estrutura
 
-J --> M
-M --> K
-
-K --> N
-N --> O
+```bash
+project/
+├── scripts/
+│   ├── generate_musics.py
+│   ├── generate_streaming.py
+|   ├── generate_users.py
+|   ├── gera_csv.py
+│   ├── ingest_batch.py
+│   ├── ingest_stream.py
+│   ├── transform_silver.py
+│   ├── transform_gold.py
+│   └── orchestrator.py
+│
+├── data/
+│   ├── raw/    
+│   ├── bronze/   
+│   ├── silver/
+│   └── gold/
+│
+├── logs/
+│   └── pipeline.log
+│
+└── README.md
 ```
 
-## 4.1 Arquitetura Escolhida
 
-A arquitetura adotada segue o modelo **Lakehouse** com o padrão **Medalhão (Bronze → Silver → Gold)**, integrando processamento **batch** e **streaming** em um único pipeline.
+### Armazenamento
+O armazenamento será baseado em um Data Lake local, organizado segundo a arquitetura medalhão, onde os dados brutos serão armazenados no formato JSON/CSV e os dados tratados e agregados em Parquet.
+Estrutura: 
+•	Bronze → dados brutos 
+•	Silver → dados tratados 
+•	Gold → dados agregados 
+Os dados Bronze não terão alterações e serão armazenados como obtidos.
 
-### Objetivos da Arquitetura
+### Processamento e transformação
+O processamento será realizado em dois modos:
+•	Batch: Utilizando Python com pandas para limpeza de dados, junções entre tabelas e agregações (ex: top músicas) 
+•	Streaming (simplificado):
+Processamento incremental dos eventos à medida que chegam (simulado) 
 
-* Ingestão de dados em tempo real e em lote
-* Armazenamento escalável e desacoplado
-* Transformações progressivas com aumento de qualidade
-* Disponibilização eficiente para consumo analítico
+### Orquestração
+A execução do pipeline é realizada pelo script python orchestrator.py, responsável por gerenciamento de fluxos de trabalho (Data Pipelines): Em projetos de dados (como ETL), ele garante que uma etapa de extração só comece após a conclusão da limpeza dos dados, controlando a dependência entre as tarefas. 
+No caso deste projeto, controlará a geração dos dados, ingestão e transformação.
 
----
+Etapas executadas:
+1.  generate_musics.py,            geração do arquivo de músicas a partir do arquivo spotfy_musics.csv
+2.	generate_streaming.py,         geração do arquivo de interações a partir do faker
+3.	generate_users.py,             geração do arquivo de usuários a partir do faker
+4.	ingest_batch.py,               ingestão dos dados de usuários e músicas na camada bronze
+5.	ingest_stream.py,              ingestãos dos dados de interações na camada bronze
+6.	transform_silver.py,           transformação dos dados bronze em silver
+7.	transform_gold.py,             transformação dos dados silver em golg, deixando-os prontos para consumo
+8.	gera_csv,                      cópia dos arquivos .parquet para .csv para utilização no Power BI
 
-## 4.2 Fluxo de Dados
+   ## 🔄 Fluxo do Pipeline de Dados
 
-O fluxo de dados ocorre nas seguintes etapas:
+```mermaid
+flowchart TD
 
-### 1. Origem dos Dados
+A[🎵 generate_musics.py<br/>Geração de músicas<br/>Fonte: spotify_musics.csv]
 
-* Aplicação de streaming (eventos simulados)
-* Bases operacionais (usuários e catálogo)
+B[👥 generate_users.py<br/>Geração de usuários<br/>Fonte: Faker]
 
-### 2. Ingestão
+C[🎧 generate_streaming.py<br/>Geração de interações<br/>Fonte: Faker]
 
-* **Streaming:** eventos enviados continuamente
-* **Batch:** dados carregados periodicamente
+A --> D[🥉 ingest_batch.py]
+B --> D
 
-### 3. Armazenamento (Data Lake)
+C --> E[🥉 ingest_stream.py]
 
-* **Bronze:** dados brutos (JSON / CSV)
-* **Silver:** dados tratados e limpos
-* **Gold:** dados agregados e prontos para análise
+D --> F[🥉 Bronze Layer]
+E --> F
 
-### 4. Processamento
+F --> G[🥈 transform_silver.py<br/>Limpeza, normalização e enriquecimento]
 
-* **Batch:** agregações históricas
-* **Streaming:** métricas em tempo quase real
+G --> H[🥈 Silver Layer]
 
-### 5. Consumo
+H --> I[🥇 transform_gold.py<br/>Agregações e métricas de negócio]
 
-* Dashboards (BI)
+I --> J[🥇 Gold Layer]
 
----
+J --> K[📄 gera_csv.py<br/>Conversão Parquet → CSV]
 
-## 4.3 Separação entre Streaming e Batch
+K --> L[📊 Power BI]
+```
+   
+### Trade-offs
+Os trade-offs foram considerados visando equilibrar simplicidade de implementação em ambiente acadêmico com boas práticas de arquiteturas modernas de dados. 
 
-### Streaming
 
-Fluxo contínuo de eventos:
-
-eventos → ingestão → bronze → processamento incremental
-
-### Batch
-
-Fluxo periódico:
-
-CSV / banco → ingestão → processamento → camadas refinadas
-
----
-
-## 4.4 Justificativa da Arquitetura
-
-O modelo **Lakehouse** combina:
-
-* Flexibilidade do **Data Lake** (dados brutos e variados)
-* Estrutura analítica do **Data Warehouse**
-
-### Benefícios
-
-* Redução de custos (armazenamento mais barato)
-* Suporte a múltiplos tipos de processamento
-* Facilidade de evolução do projeto
-
----
-
-### Arquitetura Medalhão
-
-A organização em camadas melhora qualidade, governança e reprocessamento:
-
-* **Bronze:** preservação dos dados originais
-* **Silver:** limpeza e padronização
-* **Gold:** dados prontos para consumo
-
----
-
-A arquitetura foi projetada priorizando:
-
-* Desacoplamento
-* Escalabilidade
-* Reprocessamento
-
-Permitindo suporte tanto para análises históricas quanto em tempo real.
-
----
-
-## 4.5 Trade-offs
+### 4.5 Trade-offs
 
 | Aspecto         | Decisão                               | Impacto  | Justificativa                        |
 | --------------- | ------------------------------------- | -------- | ------------------------------------ |
