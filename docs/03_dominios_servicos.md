@@ -42,43 +42,46 @@ Os serviços são **fracamente acoplados** e a comunicação pode ocorrer por:
 
 ---
 
-## 3.3 Diagrama de Domínios e Serviços
+## 🎵 Diagrama de Domínios e Serviços
 
-```mermaid id="m8k2xp"
+```mermaid
 flowchart LR
 
-subgraph Usuarios
-U1[Cadastro]
-U2[Consulta]
-U3[Exportação]
+subgraph Domínios
+    U[👤 Usuários]
+    M[🎵 Músicas]
+    I[🎧 Interações de Streaming]
 end
 
-subgraph Catalogo
-C1[Gestão]
-C2[Consulta]
-C3[Ingestão]
+subgraph Serviços
+    S1[generate_users.py]
+    S2[generate_musics.py]
+    S3[generate_streaming.py]
+
+    S4[ingest_batch.py]
+    S5[ingest_stream.py]
+
+    S6[transform_silver.py]
+    S7[transform_gold.py]
+
+    S8[gera_csv.py]
 end
 
-subgraph Interacoes
-I1[Geração]
-I2[Publicação]
-I3[Ingestão]
-end
+U --> S4
+M --> S4
+I --> S5
 
-subgraph Analytics
-A1[Batch]
-A2[Streaming]
-A3[Modelagem]
-A4[Exposição]
-end
+S1 --> U
+S2 --> M
+S3 --> I
 
-U3 --> A1
-C3 --> A1
-I2 --> A2
-I3 --> A2
-A1 --> A3
-A2 --> A3
-A3 --> A4
+S4 --> S6
+S5 --> S6
+
+S6 --> S7
+S7 --> S8
+
+S8 --> BI[📊 Power BI]
 ```
 
 ---
