@@ -240,6 +240,33 @@ J --> K[📄 gera_csv.py<br/>Conversão Parquet → CSV]
 
 K --> L[📊 Power BI]
 ```
+### Indicadores Disponibilizados
+* Top Músicas - Ranking das músicas mais reproduzidas
+* Top Artistas - Ranking dos artistas mais reproduzidos
+* Plays por Gênero - Distribuição de reproduções por gênero musical
+* Engajamento
+  Comparação entre:
+    Play
+    Like
+    Skip
+* Usuários Mais Ativos - Ranking dos usuários com maior quantidade de interações.
+* Evolução Diária - Quantidade de reproduções ao longo do tempo.
+
+### Qualidade dos Dados
+Validações implementadas:
+* Remoção de duplicidades
+* Tratamento de nulos
+* Conversão de datas
+* Validação de tipos de dados
+
+### Monitoramento
+O pipeline gera logs de execução contendo:
+* Início e término de cada etapa
+* Quantidade de registros processados
+* Erros de execução
+Arquivo:
+  logs/pipeline.log
+
    
 ### Trade-offs
 Os trade-offs foram considerados visando equilibrar simplicidade de implementação em ambiente acadêmico com boas práticas de arquiteturas modernas de dados. 
@@ -289,32 +316,6 @@ Principais adaptações em relação ao planejamento original
 
 ________________________________________
 
-### Indicadores Disponibilizados
-* Top Músicas - Ranking das músicas mais reproduzidas
-* Top Artistas - Ranking dos artistas mais reproduzidos
-* Plays por Gênero - Distribuição de reproduções por gênero musical
-* Engajamento
-  Comparação entre:
-    Play
-    Like
-    Skip
-* Usuários Mais Ativos - Ranking dos usuários com maior quantidade de interações.
-* Evolução Diária - Quantidade de reproduções ao longo do tempo.
-
-### Qualidade dos Dados
-Validações implementadas:
-* Remoção de duplicidades
-* Tratamento de nulos
-* Conversão de datas
-* Validação de tipos de dados
-
-### Monitoramento
-O pipeline gera logs de execução contendo:
-* Início e término de cada etapa
-* Quantidade de registros processados
-* Erros de execução
-Arquivo:
-  logs/pipeline.log
 
 
 ## 6. Considerações Finais
