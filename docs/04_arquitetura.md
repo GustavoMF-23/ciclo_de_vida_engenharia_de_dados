@@ -1,5 +1,64 @@
 # 4. Arquitetura — Fluxo de Dados
 
+## 🏗️ Arquitetura do Projeto
+
+```mermaid
+flowchart LR
+
+subgraph Fontes de Dados
+    A[spotify_musics.csv]
+    B[Faker - Usuários]
+    C[Faker - Interações]
+end
+
+subgraph Geração de Dados
+    D[generate_musics.py]
+    E[generate_users.py]
+    F[generate_streaming.py]
+end
+
+subgraph Ingestão
+    G[ingest_batch.py]
+    H[ingest_stream.py]
+end
+
+subgraph Lakehouse
+    I[🥉 Bronze Layer<br/>Dados Brutos]
+    J[🥈 Silver Layer<br/>Dados Tratados]
+    K[🥇 Gold Layer<br/>Dados Analíticos]
+end
+
+subgraph Transformações
+    L[transform_silver.py]
+    M[transform_gold.py]
+end
+
+subgraph Consumo
+    N[gera_csv.py]
+    O[📊 Power BI]
+end
+
+A --> D
+B --> E
+C --> F
+
+D --> G
+E --> G
+F --> H
+
+G --> I
+H --> I
+
+I --> L
+L --> J
+
+J --> M
+M --> K
+
+K --> N
+N --> O
+```
+
 ## 4.1 Arquitetura Escolhida
 
 A arquitetura adotada segue o modelo **Lakehouse** com o padrão **Medalhão (Bronze → Silver → Gold)**, integrando processamento **batch** e **streaming** em um único pipeline.
@@ -41,7 +100,6 @@ O fluxo de dados ocorre nas seguintes etapas:
 ### 5. Consumo
 
 * Dashboards (BI)
-* APIs de recomendação
 
 ---
 
