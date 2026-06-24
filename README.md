@@ -103,7 +103,7 @@ Os dados de uso (reproduções, interações e preferências) estão dispersos e
 
 ### Arquitetura
 
-## 🏗️ Arquitetura do Pipeline
+## 🏗️ Arquitetura 
 
 ```mermaid
 flowchart LR
@@ -140,7 +140,6 @@ Já a arquitetura Medalhão (Bronze, Silver, Gold) utiliza camadas, melhorando a
 
   <img width="885" height="319" alt="image" src="https://github.com/user-attachments/assets/dd957203-5d31-420a-b4cd-5c843bb371bb" />
 
-  
 ### Fluxo
 
 1. Origem (eventos + dados batch)
@@ -148,9 +147,65 @@ Já a arquitetura Medalhão (Bronze, Silver, Gold) utiliza camadas, melhorando a
 3. Armazenamento (Data Lake)
 4. Processamento
 5. Consumo
+   
+  ## 🏗️ Arquitetura do Pipeline
 
-### Stack
-<img width="1082" height="300" alt="image" src="https://github.com/user-attachments/assets/d8361d90-cf16-46d7-8f4a-f6f0f29edee9" />
+```mermaid
+flowchart LR
+
+subgraph Sources["📥 Fontes de Dados"]
+    A[users.csv]
+    B[music.csv]
+    C[Gerador de Eventos<br/>Faker]
+end
+
+subgraph Orchestration["⚙️ Orquestração"]
+    D[orchestrator.py]
+end
+
+subgraph Ingestion["📤 Ingestão"]
+    E[ingest_batch.py]
+    F[ingest_stream.py]
+end
+
+subgraph Bronze["🥉 Bronze Layer"]
+    G[Dados Brutos<br/>Parquet / JSON]
+end
+
+subgraph Silver["🥈 Silver Layer"]
+    H[transform_silver.py]
+    I[Dados Limpos e Padronizados]
+end
+
+subgraph Gold["🥇 Gold Layer"]
+    J[transform_gold.py]
+    K[KPIs e Métricas<br/>Top Músicas • Top Artistas • Engajamento]
+end
+
+subgraph Consumption["📊 Consumo"]
+    L[Power BI / Streamlit]
+end
+
+A --> E
+B --> E
+C --> F
+
+D -.executa.-> E
+D -.executa.-> F
+D -.executa.-> H
+D -.executa.-> J
+
+E --> G
+F --> G
+
+G --> H
+H --> I
+
+I --> J
+J --> K
+
+K --> L
+```
 
 
 ### Estrutura
