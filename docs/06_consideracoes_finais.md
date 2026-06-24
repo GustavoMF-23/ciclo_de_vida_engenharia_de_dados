@@ -1,4 +1,5 @@
 # 6. Considerações Finais
+O projeto implementa um pipeline completo de Engenharia de Dados utilizando a arquitetura Medalhão (Bronze, Silver e Gold), permitindo o processamento e análise de dados de streaming musical de forma reproduzível e escalável.
 
 ## 6.1 Riscos e Limitações
 
@@ -13,14 +14,7 @@
 
 ---
 
-## 6.2 Próximos Passos
 
-* Implementar ingestão de dados
-* Criar estrutura do Data Lake
-* Desenvolver pipelines batch e streaming
-* Criar dashboards iniciais
-
----
 
 ## 6.3 Referências
 
