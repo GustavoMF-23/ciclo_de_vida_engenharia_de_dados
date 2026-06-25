@@ -7,6 +7,23 @@
 | Gustavo Monteiro Fonseca | 22353243 |
 
 ---
+### Visualização de dados após execução do pipeline
+
+<img width="1018" height="563" alt="image" src="https://github.com/user-attachments/assets/8fd7c0c8-c973-4211-a187-45b7fa233db0" />
+
+---
+### Como executar o código
+1. Crie uma imagem
+      Abra um terminal na pasta do projeto com o comando
+   
+               cd MusicStreamingPipeline
+      Depois crie a imagem
+    
+               docker build -t music-pipeline .
+2. Execute o container
+
+               docker run -v ${PWD}/data:/app/data music-pipeline
+
 
 ## 1. Descrição do Projeto
 
@@ -388,11 +405,6 @@ ________________________________________
 
 ---
 
-### Próximos Passos
-
-*
-
----
 
 ### Referências
 
